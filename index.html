@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title> + - 계산기</title>
+</head>
+
+<body>
+  <input id="input" type="text" value="1+2-3+4-5+6-7+8">
+  <button id="run">실행</button>
+  <p id="output"></p>
+  <script>
+    var calc = (function() {
+      var reBegin = /^\s*(\d+)\s*(.*?)\s*$/; // (number) (rest)
+      var reNext = /^(\+|-)\s*(\d+)\s*(.*)$/; // (+ or -) (number) (rest)
+      var parseBegin = function(input) {
+        var parsed = reBegin.exec(input);
+        return {
+          operand: parseInt(parsed[1]),
+          rest: parsed[2]
+        };
+      };
+      var parseNext = function(input) {
+        var parsed = reNext.exec(input);
+        return {
+          operator: parsed[1],
+          operand: parseInt(parsed[2]),
+          rest: parsed[3]
+        };
+      }
+      var appendLine = function(originStr, newLine) {
+        return originStr + '<br> = ' + newLine;
+      };
+      return function(input) {
+        var output = input;
+        try {
+          var parsed = parseBegin(input);
+          var result = parsed.operand;
+          input = parsed.rest;
+          while (input) {
+            parsed = parseNext(input);
+            if (parsed.operator === '+')
+              result += parsed.operand;
+            else
+              result -= parsed.operand;
+            input = parsed.rest;
+            output = appendLine(output, result + ' ' + input);
+          }
+        } catch (e) {
+          console.error(e);
+          output = appendLine(output, NaN);
+        }
+        return output;
+      };
+    })();
+    document.getElementById('run').onclick = function() {
+      document.getElementById('output').innerHTML =
+        calc(document.getElementById('input').value);
+    }
+  </script>
+</body>
+
+</html>
